@@ -24,7 +24,10 @@ That's not that much different. However, if you want to retrieve the related rec
 var table = feature.FeatureTable as ServiceFeatureTable;
 var relationshipInfo = table.LayerInfo.RelationshipInfos.FirstOrDefault();
 var parameters = new RelatedQueryParameters(relationshipInfo);
-var relationships = await (table).QueryRelatedFeaturesAsync((ArcGISFeature)feature, parameters, QueryFeatureFields.LoadAll);
+var relationships = await (table).QueryRelatedFeaturesAsync(
+                                        (ArcGISFeature)feature,
+                                        parameters,
+                                        QueryFeatureFields.LoadAll);
 ```
 
 ### Offline
@@ -33,18 +36,20 @@ var relationships = await (table).QueryRelatedFeaturesAsync((ArcGISFeature)featu
 var table = feature.FeatureTable as GeodatabaseFeatureTable;
 var relationshipInfo = table.LayerInfo.RelationshipInfos.FirstOrDefault();
 var parameters = new RelatedQueryParameters(relationshipInfo);
-var relationships = await (table).QueryRelatedFeaturesAsync((ArcGISFeature)feature, parameters);
+var relationships = await (table).QueryRelatedFeaturesAsync(
+                                        (ArcGISFeature)feature,
+                                        parameters);
 ```
 
 Since C# is type-safe, it is at a disadvantage when it comes to specifying types that share common functionality. Ideally you could do something like this and move on with life:
 
 ```csharp
 var table = (AppState == AppState.Online) ?
-            (ServiceFeatureTable)feature.FeatureTable : 
+            (ServiceFeatureTable)feature.FeatureTable :
             (GeodatabaseFeatureTable)feature.FeatureTable;
 ```
 
-But you cannot. You'll get this error: 
+But you cannot. You'll get this error:
 
 `Type of conditional expression cannot be determined because there is no implicit conversion between 'Esri.ArcGISRuntime.Data.ServiceFeatureTable' and 'Esri.ArcGISRuntime.Data.GeodatabaseFeatureTable'.`
 
@@ -53,7 +58,9 @@ So what is a solution that will keep you from having to duplicate code? How abou
 ```csharp
 interface IFeatureTableSelector
 {
-    Task<IReadOnlyList<RelatedFeatureQueryResult>> GetRelatedRecords(Feature feature, RelationshipInfo relationshipInfo);
+    Task<IReadOnlyList<RelatedFeatureQueryResult>> GetRelatedRecords(
+                                                        Feature feature,
+                                                        RelationshipInfo relationshipInfo);
     IReadOnlyList<RelationshipInfo> GetRelationshipInfos(Feature feature);
 }
 ```
@@ -69,7 +76,10 @@ class OnlineFeatureTable : IFeatureTableSelector
     {
         var parameters = new RelatedQueryParameters(relationshipInfo);
         var table = feature.FeatureTable as ServiceFeatureTable;
-        var relationships = await (table).QueryRelatedFeaturesAsync((ArcGISFeature)feature, parameters, QueryFeatureFields.LoadAll);
+        var relationships = await (table).QueryRelatedFeaturesAsync(
+                                                (ArcGISFeature)feature,
+                                                parameters,
+                                                QueryFeatureFields.LoadAll);
         return relationships;
     }
 
@@ -89,7 +99,9 @@ class OfflineFeatureTable : IFeatureTableSelector
     {
         var parameters = new RelatedQueryParameters(relationshipInfo);
         var table = feature.FeatureTable as GeodatabaseFeatureTable;
-        var relationships = await (table).QueryRelatedFeaturesAsync((ArcGISFeature)feature, parameters);
+        var relationships = await (table).QueryRelatedFeaturesAsync(
+                                                (ArcGISFeature)feature,
+                                                parameters);
         return relationships;
     }
 
