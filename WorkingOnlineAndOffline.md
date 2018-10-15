@@ -1,6 +1,6 @@
 # Don't duplicate code when working Online and Offline with the .NET Runtime SDK
 
-Building an app that works in a disconnected environment may seem like a daunting task, but it doesn't have to be. The Runtime SDK offers the same type of functionality (view, query, add, edit, delete) on both online and offline data. It sometimes looks a little differently between online and offline, but that can easily be reconciled with the use of an interface. 
+Building an app that works in a disconnected environment may seem like a daunting task, but it doesn't have to be. The ArcGIS Runtime SDK offers the same type of functionality (view, query, add, edit, delete) on both online and offline data. It sometimes looks a little differently between online and offline, but that can easily be reconciled with the use of an interface. 
 
 ## Problem
 
