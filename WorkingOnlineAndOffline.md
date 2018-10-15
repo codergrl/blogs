@@ -1,6 +1,8 @@
-## Don't duplicate code when working Online and Offline with the .NET Runtime SDK
+# Don't duplicate code when working Online and Offline with the .NET Runtime SDK
 
 Building an app that works in a disconnected environment may seem like a daunting task, but it doesn't have to be. The Runtime SDK offers the same type of functionality (view, query, add, edit, delete) on both online and offline data. It sometimes looks a little differently between online and offline, but that can easily be reconciled with the use of an interface. 
+
+## Problem
 
 For example, when you're working with an online feature layer and you're trying to retrieve its related records, you could do something like this:
 
@@ -52,6 +54,8 @@ var table = (AppState == AppState.Online) ?
 But you cannot. You'll get this error:
 
 `Type of conditional expression cannot be determined because there is no implicit conversion between 'Esri.ArcGISRuntime.Data.ServiceFeatureTable' and 'Esri.ArcGISRuntime.Data.GeodatabaseFeatureTable'.`
+
+## Solution
 
 So what is a solution that will keep you from having to duplicate code? How about an interface that defines all the methods you're needing to use in both online and offline mode:
 
