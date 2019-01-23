@@ -6,22 +6,22 @@ Data Collection for .NET is a WPF application built using the ArcGIS .NET Runtim
 
 ### Identify map data
 
-<!-- animated gif showing identify and edit goes here -->
+![identify](https://user-images.githubusercontent.com/20545379/51622849-547b6980-1eec-11e9-8e7f-6495cd4d1ca5.gif)
 
 Collecting data means also knowing what is around you. Click on one of the data points on the map to bring up information about it. And if you need to edit it, clicking on the pencil icon will open it in edit mode. Simple as that!
 
 ### Collect new data point
 
-<!-- animated gif showing adding new feature goes here -->
+![add_record](https://user-images.githubusercontent.com/20545379/51622891-652bdf80-1eec-11e9-9380-32ab30e2a88f.gif)
 
 When you're ready to add a new data point, click the plus button to begin. You'll be prompted to select a location for your new data point and add some information about it.
 
 ### Offline Mode
 
-<!-- animated gif showing taking a map offline and sync -->
+![offline](https://user-images.githubusercontent.com/20545379/51622920-7379fb80-1eec-11e9-9b0a-ff191240749b.gif)
 
 Because we know what a lot of our users work in remote areas, we have added an offline mode to the application. Simply navigate the map to your desired work area and select "Work Offline" from the menu. The app will download necessary data and will allow you to collect data points when you are disconnected from the network. And when you're back in the office or able to connect to a network, simply select "Sync Map" to have your changes merged with the online version of your map.
 
-Do you think this is something you could use? Take a look at the full documentation and download the app from GitHub!
+Do you think this is something you could use? Take a look at the [full documentation](https://developers.arcgis.com/example-apps/data-collection-dotnet/) and download the app from [GitHub](https://github.com/Esri/data-collection-dotnet)!
 
 Happy collecting!
