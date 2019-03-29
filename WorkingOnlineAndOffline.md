@@ -1,6 +1,6 @@
-# Don't duplicate code when working Online and Offline with the .NET Runtime SDK
+# Don't repeat yourself! Using extensions to work Online and Offline with the .NET Runtime SDK
 
-Building an app that works in a disconnected environment may seem like a daunting task, but it doesn't have to be. The ArcGIS Runtime SDK offers the same type of functionality (view, query, add, edit, delete) on both online and offline data. It sometimes looks a little differently between online and offline, but that can easily be reconciled with the use of an interface. 
+Building an app that works in a disconnected environment may seem like a daunting task, but it doesn't have to be. The ArcGIS Runtime SDK offers the same type of functionality (view, query, add, edit, delete) on both online and offline data. It sometimes looks a little differently between online and offline, but that can easily be reconciled with the use of extensions.
 
 ## Problem
 
@@ -57,75 +57,52 @@ But you cannot. You'll get this error:
 
 ## Solution
 
-So what is a solution that will keep you from having to duplicate code? How about an interface that defines all the methods you're needing to use in both online and offline mode:
+So what is a solution that will keep you from having to duplicate code? How about a set of [extensions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods) that define all the methods you're needing to use in both online and offline mode:
 
 ```csharp
-interface IFeatureTableSelector
+/// <summary>
+/// Retrieves all relationship infos for a table
+/// </summary>
+internal static IReadOnlyList<RelationshipInfo> GetRelationshipInfos(this FeatureTable featureTable)
 {
-    Task<IReadOnlyList<RelatedFeatureQueryResult>> GetRelatedRecords(
-                                                        Feature feature,
-                                                        RelationshipInfo relationshipInfo);
-    IReadOnlyList<RelationshipInfo> GetRelationshipInfos(Feature feature);
+    if (featureTable is ServiceFeatureTable serviceFeatureTable)
+    {
+        return serviceFeatureTable.LayerInfo.RelationshipInfos;
+    }
+    else if (featureTable is GeodatabaseFeatureTable geodatabaseFeatureTable)
+    {
+        return geodatabaseFeatureTable.LayerInfo.RelationshipInfos;
+    }
+    return null;
+}
+
+/// <summary>
+/// Retrieves records related to a feature based on information from the relationship info
+/// </summary>
+internal static async Task<IReadOnlyList<RelatedFeatureQueryResult>> GetRelatedRecords(this FeatureTable featureTable, Feature feature, RelationshipInfo relationshipInfo)
+{
+    var parameters = new RelatedQueryParameters(relationshipInfo);
+
+    if (featureTable is ServiceFeatureTable serviceFeatureTable)
+    {
+        return await serviceFeatureTable.QueryRelatedFeaturesAsync((ArcGISFeature)feature, parameters, QueryFeatureFields.LoadAll);
+    }
+    else if (featureTable is GeodatabaseFeatureTable geodatabaseFeatureTable)
+    {
+        return await geodatabaseFeatureTable.QueryRelatedFeaturesAsync((ArcGISFeature)feature, parameters);
+    }
+    return null;
 }
 ```
 
-Create 2 classes, one for the Online table mode and one for the Offline table mode that implement your new interface:
-
-### Online
+Once you have it all set up, the new extension methods will be available on the base FeatureTable class.
 
 ```csharp
-class OnlineFeatureTable : IFeatureTableSelector
-{
-    public async Task<IReadOnlyList<RelatedFeatureQueryResult>> GetRelatedRecords(Feature feature, RelationshipInfo relationshipInfo)
-    {
-        var parameters = new RelatedQueryParameters(relationshipInfo);
-        var table = feature.FeatureTable as ServiceFeatureTable;
-        var relationships = await (table).QueryRelatedFeaturesAsync(
-                                                (ArcGISFeature)feature,
-                                                parameters,
-                                                QueryFeatureFields.LoadAll);
-        return relationships;
-    }
+// get RelationshipInfos from the table
+var relationshipInfos = feature.FeatureTable.GetRelationshipInfos();
 
-    public IReadOnlyList<RelationshipInfo> GetRelationshipInfos(Feature feature)
-    {
-        return ((ServiceFeatureTable)feature.FeatureTable).LayerInfo.RelationshipInfos;
-    }
-}
+// get related records for a feature
+var relatedRecords = await feature.FeatureTable.GetRelatedRecords(feature, relationshipInfo);
 ```
 
-### Offline
-
-```csharp
-class OfflineFeatureTable : IFeatureTableSelector
-{
-    public async Task<IReadOnlyList<RelatedFeatureQueryResult>> GetRelatedRecords(Feature feature, RelationshipInfo relationshipInfo)
-    {
-        var parameters = new RelatedQueryParameters(relationshipInfo);
-        var table = feature.FeatureTable as GeodatabaseFeatureTable;
-        var relationships = await (table).QueryRelatedFeaturesAsync(
-                                                (ArcGISFeature)feature,
-                                                parameters);
-        return relationships;
-    }
-
-    public IReadOnlyList<RelationshipInfo> GetRelationshipInfos(Feature feature)
-    {
-        return ((GeodatabaseFeatureTable)feature.FeatureTable).LayerInfo.RelationshipInfos;
-    }
-}
-```
-
-Once you have it all set up, you'll just determine the type of table one time, as you start working with your data, and off you go.
-
-```csharp
-IFeatureTableSelector tableSelector = (AppState == AppState.Online) ?
-    new OnlineFeatureTable() as IFeatureTableSelector :
-    new OfflineFeatureTable() as IFeatureTableSelector;
-
-// get RelationshipInfos from online or offline table
-var relationshipInfos = tableSelector.GetRelationshipInfos(feature);
-
-// get Relationships from online or offline table
-var relationships = await tableSelector.GetRelatedRecords(feature, relationshipInfo);
-```
+To see this workflow used in a real application, check out the open source [Data Collection](https://github.com/Esri/data-collection-dotnet) app.
