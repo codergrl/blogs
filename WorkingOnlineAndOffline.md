@@ -1,6 +1,6 @@
 # Don't repeat yourself! Using extensions to work Online and Offline with the .NET Runtime SDK
 
-Building an app that works in a disconnected environment may seem like a daunting task, but it doesn't have to be. The ArcGIS Runtime SDK offers the same type of functionality (view, query, add, edit, delete) on both online and offline data. It sometimes looks a little differently between online and offline, but that can easily be reconciled with the use of extensions.
+Building an app that works in a disconnected environment may seem like a daunting task, but it doesn't have to be. The ArcGIS Runtime SDK offers the same type of functionality (view, query, add, edit, delete) on both online and offline data. It sometimes looks a little differently between online and offline, but that can easily be reconciled with the use of [extension methods](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods).
 
 ## Problem
 
@@ -57,7 +57,7 @@ But you cannot. You'll get this error:
 
 ## Solution
 
-So what is a solution that will keep you from having to duplicate code? How about a set of [extensions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods) that define all the methods you're needing to use in both online and offline mode:
+So what is a solution that will keep you from having to duplicate code? How about a set of [extension methods](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods) that define all the methods you're needing to use in both online and offline mode:
 
 ```csharp
 /// <summary>
